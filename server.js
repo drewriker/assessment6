@@ -14,6 +14,16 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 app.use(cors());
 
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+  accessToken: '34b6f15b0f684cd7a14e8c7cbbc2080c',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+})
+
+// record a generic message and send it to Rollbar
+rollbar.log('Hello world!')
+
 // Add up the total health of all the robots
 const calculateTotalHealth = (robots) =>
 	robots.reduce((total, { health }) => total + health, 0);
@@ -43,6 +53,7 @@ app.get("/api/robots", (req, res) => {
 	try {
 		res.status(200).send(botsArr);
 	} catch (error) {
+    rollbar.error("User could not get bots")
 		console.error("ERROR GETTING BOTS", error);
 		res.sendStatus(400);
 	}
@@ -51,8 +62,10 @@ app.get("/api/robots", (req, res) => {
 app.get("/api/robots/shuffled", (req, res) => {
 	try {
 		let shuffled = shuffle(bots);
+    rollbar.info("bots shuffled")
 		res.status(200).send(shuffled);
 	} catch (error) {
+    rollbar.error("User could not get shuffled bots")
 		console.error("ERROR GETTING SHUFFLED BOTS", error);
 		res.sendStatus(400);
 	}
@@ -76,6 +89,7 @@ app.post("/api/duel", (req, res) => {
 			res.status(200).send("You won!");
 		}
 	} catch (error) {
+    rollbar.error("User could not duel")
 		console.log("ERROR DUELING", error);
 		res.sendStatus(400);
 	}
@@ -85,6 +99,7 @@ app.get("/api/player", (req, res) => {
 	try {
 		res.status(200).send(playerRecord);
 	} catch (error) {
+    rollbar.error("User could not get stats")
 		console.log("ERROR GETTING PLAYER STATS", error);
 		res.sendStatus(400);
 	}
