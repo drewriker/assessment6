@@ -24,7 +24,7 @@ yourDuoHeader.classList.add("hide");
 compDuoHeader.classList.add("hide");
 
 const makeRobotChoiceCard = (bot) => {
-  return `
+	return `
         <div class="bot-card outline">
         <img src='${bot.imgAddress}' alt='${bot.name}'/>
         <h3>${bot.name}</h3>
@@ -37,7 +37,7 @@ const makeRobotChoiceCard = (bot) => {
 };
 
 const makeRobotPlayerCard = (bot) => {
-  return `
+	return `
         <div class="bot-card outline">
         <img src='${bot.imgAddress}' alt='${bot.name}'/>
         <h3>${bot.name}</h3>
@@ -50,7 +50,7 @@ const makeRobotPlayerCard = (bot) => {
 };
 
 const makeRobotDisplayCard = (bot) => {
-  return `
+	return `
         <div class="bot-card outline">
         <img src='${bot.imgAddress}' alt='${bot.name}'/>
         <h3>${bot.name}</h3>
@@ -62,120 +62,124 @@ const makeRobotDisplayCard = (bot) => {
 };
 
 const renderChoices = () => {
-  choicesDiv.innerHTML = "";
-  chooseHeader.classList.remove("hide");
+	choicesDiv.innerHTML = "";
+	chooseHeader.classList.remove("hide");
 
-  choices.forEach((choice) => {
-    let botHtml = makeRobotChoiceCard(choice);
-    choicesDiv.innerHTML += botHtml;
-  });
+	choices.forEach((choice) => {
+		let botHtml = makeRobotChoiceCard(choice);
+		choicesDiv.innerHTML += botHtml;
+	});
 };
 
 const renderCompDuo = () => {
-  compDuoDiv.innerHTML = "";
-  compDuoHeader.classList.remove("hide");
+	compDuoDiv.innerHTML = "";
+	compDuoHeader.classList.remove("hide");
 
-  compDuo.forEach((bot) => {
-    let botHtml = makeRobotDisplayCard(bot);
-    compDuoDiv.innerHTML += botHtml;
-  });
+	compDuo.forEach((bot) => {
+		let botHtml = makeRobotDisplayCard(bot);
+		compDuoDiv.innerHTML += botHtml;
+	});
 };
 
 const renderPlayerDuo = () => {
-  playerDuoDiv.innerHTML = "";
-  yourDuoHeader.classList.remove("hide");
+	playerDuoDiv.innerHTML = "";
+	yourDuoHeader.classList.remove("hide");
 
-  playerDuo.forEach((bot) => {
-    let botHtml = makeRobotPlayerCard(bot);
-    playerDuoDiv.innerHTML += botHtml;
-  });
+	playerDuo.forEach((bot) => {
+		let botHtml = makeRobotPlayerCard(bot);
+		playerDuoDiv.innerHTML += botHtml;
+	});
 };
 
 const chooseBot = (id) => {
-  if (playerDuo.length === 2) {
-    return alert("You can only choose two bots!");
-  }
-  let index = choices.findIndex((bot) => bot.id === id);
-  playerDuo.push(choices[index]);
-  choices.splice(index, 1);
-  renderChoices();
-  renderPlayerDuo();
-  if (playerDuo.length === 2) {
-    duelBtn.classList.remove("hide");
-  }
+	if (playerDuo.length === 2) {
+		return alert("You can only choose two bots!");
+	}
+	let index = choices.findIndex((bot) => bot.id === id);
+	playerDuo.push(choices[index]);
+	choices.splice(index, 1);
+	renderChoices();
+	renderPlayerDuo();
+	if (playerDuo.length === 2) {
+		duelBtn.classList.remove("hide");
+	}
 };
 
 const putBotBack = (id) => {
-  let index = playerDuo.findIndex((bot) => bot.id === id);
-  choices.push(playerDuo[index]);
-  playerDuo.splice(index, 1);
-  renderChoices();
-  renderPlayerDuo();
-  duelBtn.classList.add("hide");
-  if (playerDuo.length === 0) {
-    yourDuoHeader.classList.add("hide");
-  }
+	let index = playerDuo.findIndex((bot) => bot.id === id);
+	choices.push(playerDuo[index]);
+	playerDuo.splice(index, 1);
+	renderChoices();
+	renderPlayerDuo();
+	duelBtn.classList.add("hide");
+	if (playerDuo.length === 0) {
+		yourDuoHeader.classList.add("hide");
+	}
 };
 
 const drawFive = () => {
-  axios.get("/api/robots/shuffled").then((res) => {
-    const shuffledBots = res.data;
-    choices = shuffledBots.slice(0, 5);
-    compDuo = shuffledBots.slice(6, 8);
+	axios.get("http://localhost:8000/api/robots/shuffled").then((res) => {
+		const shuffledBots = res.data;
+		choices = shuffledBots.slice(0, 5);
+		compDuo = shuffledBots.slice(6, 8);
 
-    renderChoices();
+		renderChoices();
 
-    drawBtn.classList.add("hide");
-  });
+		drawBtn.classList.add("hide");
+	});
 };
 
 const duel = () => {
-  resultsText.textContent = "Dueling...";
-  duelBtn.classList.add("hide");
-  choicesDiv.innerHTML = "";
-  chooseHeader.classList.add("hide");
-  renderCompDuo();
-  document
-    .querySelectorAll(".bot-btn")
-    .forEach((btn) => btn.classList.add("hide"));
-  setTimeout(() => {
-    axios.post("/api/duel", { compDuo, playerDuo }).then(({ data }) => {
-      resultsText.textContent = data;
-      playAgainBtn.classList.remove("hide");
-      getPlayerStats();
-    });
-  }, 1500);
+	resultsText.textContent = "Dueling...";
+	duelBtn.classList.add("hide");
+	choicesDiv.innerHTML = "";
+	chooseHeader.classList.add("hide");
+	renderCompDuo();
+	document
+		.querySelectorAll(".bot-btn")
+		.forEach((btn) => btn.classList.add("hide"));
+	setTimeout(() => {
+		axios
+			.post("http://localhost:8000/api/duel", { compDuo, playerDuo })
+			.then(({ data }) => {
+				resultsText.textContent = data;
+				playAgainBtn.classList.remove("hide");
+				getPlayerStats();
+			});
+	}, 1500);
 };
 
 const reset = () => {
-  resultsText.textContent = "";
-  choices = [];
-  compDuo = [];
-  playerDuo = [];
-  playAgainBtn.classList.add("hide");
-  renderChoices();
-  renderCompDuo();
-  renderPlayerDuo();
-  drawBtn.classList.remove("hide");
-  compDuoHeader.classList.add("hide");
+	resultsText.textContent = "";
+	choices = [];
+	compDuo = [];
+	playerDuo = [];
+	playAgainBtn.classList.add("hide");
+	renderChoices();
+	renderCompDuo();
+	renderPlayerDuo();
+	drawBtn.classList.remove("hide");
+	compDuoHeader.classList.add("hide");
 };
 
 const getPlayerStats = () => {
-  axios.get("/api/player").then(({ data: { wins, losses } }) => {
-    winsText.textContent = `Wins: ${wins}`;
-    lossesTest.textContent = `Losses: ${losses}`;
-  });
+	axios
+		.get("http://localhost:8000/api/player")
+		.then(({ data: { wins, losses } }) => {
+			winsText.textContent = `Wins: ${wins}`;
+			lossesTest.textContent = `Losses: ${losses}`;
+		});
 };
 
 const getAllBots = () => {
-  axios.get("/api/robots").then(({ data }) => {
-    allBotsDiv.innerHTML = "";
+	axios.get("http://localhost:8000/api/robots").then(({ data }) => {
+		allBotsDiv.innerHTML = "";
 
-    data.forEach((bot) => {
-      let botHtml = makeRobotDisplayCard(bot);
-      allBotsDiv.innerHTML += botHtml;
-    });
-  });
+		data.forEach((bot) => {
+			let botHtml = makeRobotDisplayCard(bot);
+			allBotsDiv.innerHTML += botHtml;
+		});
+	});
 };
 
 drawBtn.addEventListener("click", drawFive);
